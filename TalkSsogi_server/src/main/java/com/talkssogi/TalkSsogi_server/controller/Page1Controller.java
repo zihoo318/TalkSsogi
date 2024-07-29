@@ -3,16 +3,13 @@ package com.talkssogi.TalkSsogi_server.controller;
 import com.talkssogi.TalkSsogi_server.domain.User;
 import com.talkssogi.TalkSsogi_server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/*
-Page1Service를 모든 유저의 id를 저장한 배열을 만드는 함수를 포함해서 만들어줘 이 함수를 사용해서 Page1Controller에서 api로 보내도록
-Page1Service랑 Page1Controller 만들기!!
- */
 
 @RestController
 @RequestMapping("/api")
@@ -33,7 +30,10 @@ public class Page1Controller {
     }
 
     @PostMapping("/userId")
-    public ResponseEntity<String> createUser(@RequestParam("userId") String userId) {
+    public ResponseEntity<String> createUser(@RequestBody User user) {
+        // User 객체에서 userId 추출
+        String userId = user.getUserId();
+
         // 새로운 사용자 객체를 생성
         User newUser = new User(userId);
 

@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	//implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' //웹 안 만듦
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -32,6 +32,15 @@ dependencies {
 
 	//for test
 	runtimeOnly 'com.h2database:h2'
+
+	// 로그 출력
+	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+	// AWS SDK for S3
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.340'
+	// AWS SDK Core
+	implementation 'com.amazonaws:aws-java-sdk-core:1.12.340'
 }
 
 tasks.named('test') {

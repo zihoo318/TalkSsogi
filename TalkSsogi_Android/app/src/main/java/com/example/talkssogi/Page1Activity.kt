@@ -3,7 +3,6 @@ package com.example.talkssogi
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
@@ -28,7 +27,7 @@ class Page1Activity : AppCompatActivity() {
         val etID: EditText = findViewById(R.id.etID)
         val idConfirm: TextView = findViewById(R.id.IDConfirm)
         val idConfirm2: TextView = findViewById(R.id.IDConfirm2)
-        val btnUploadFile: ImageButton = findViewById(R.id.btnUploadFile)
+        val btnUploadName: ImageButton = findViewById(R.id.btnUploadName)
 
         // EditText에 입력된 텍스트의 변화를 감지하는 TextWatcher 추가
         etID.addTextChangedListener(object : TextWatcher {
@@ -57,8 +56,8 @@ class Page1Activity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // "Upload File" 버튼 클릭 시 실행되는 리스너 설정
-        btnUploadFile.setOnClickListener {
+        // 확인 버튼 클릭 시 실행되는 리스너 설정
+        btnUploadName.setOnClickListener {
             val newID = etID.text.toString()
             if (newID.isNotEmpty() && !(viewModel.userIds.value?.contains(newID) == true)) {
                 // 입력된 ID가 빈 값이 아니고, usedIDs 리스트에 포함되어 있지 않은 경우
@@ -66,15 +65,12 @@ class Page1Activity : AppCompatActivity() {
                 etID.text.clear() // EditText의 텍스트를 비움
                 idConfirm.visibility = TextView.GONE // ID가 사용 가능한 경우의 메시지를 숨김
                 idConfirm2.visibility = TextView.GONE // ID가 사용 중임을 나타내는 메시지를 숨김
-                // ID가 추가되었다는 메시지를 표시할 수 있음 (예: Toast)
-                // Toast.makeText(this, "ID added", Toast.LENGTH_SHORT).show()
-
 
                 // Shared Preferences에 사용자 아이디 저장
                 // (메인액티비티에서 만든 변수 안에 값 넣기 -> 다음 앱 접속 땐 값이 있어서 바로 페이지2로 이동)
                 val sharedPreferences = getSharedPreferences("Session_ID", Context.MODE_PRIVATE)
-                sharedPreferences.edit().putString("userToken", newID)
-                    .apply() // "userToken" 키에 newID 저장
+                sharedPreferences.edit().putString("Session_ID", newID)
+                    .apply() // "Session_ID" 키에 newID 저장
 
                 // 서버에 사용자 아이디 전송
                 viewModel.sendUserId(newID)
@@ -91,8 +87,6 @@ class Page1Activity : AppCompatActivity() {
     private fun goToNextActivity(userId: String) {
         // 다음 화면으로 이동하는 Intent 생성
         val intent = Intent(this, Page2Activity::class.java)  //페이지2로 가기
-        // 필요한 경우 아이디 정보를 Intent에 추가
-        intent.putExtra("userId", userId)
         startActivity(intent)
         // 현재 액티비티 종료
         finish()

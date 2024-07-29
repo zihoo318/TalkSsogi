@@ -1,16 +1,25 @@
 package com.example.talkssogi
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+//가을 추가 코두
+import android.graphics.drawable.AnimationDrawable
+
 
 class Page3Activity : AppCompatActivity() {
 
@@ -27,20 +36,35 @@ class Page3Activity : AppCompatActivity() {
     private lateinit var pot: ImageView
     private lateinit var speech_bubble: ImageView
     private lateinit var btnUploadFile: ImageButton
+    private lateinit var loadingIndicator: ProgressBar // 분석 중 띄우는 바
+    private val viewModel: MyViewModel by lazy { //공유 뷰모델
+        (application as MyApplication).viewModel
+    }
+    private var selectedFileUri: Uri? = null // 파일 경로
+    private lateinit var sharedPreferences: SharedPreferences
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.page3_activity)
 
         // UI 요소의 참조를 가져옵니다.
-        tvPeople = findViewById(R.id.tvPeople)
-        etPeopleCount = findViewById(R.id.etPeopleCount)
+        tvPeople = findViewById(R.id.tvPeople) // .text에 인원 수
+        etPeopleCount = findViewById(R.id.etPeopleCount) //인원 수 뷰
         tvSelectedFile = findViewById(R.id.tvSelectedFile)
         imageView = findViewById(R.id.undo_button)
         textView = findViewById(R.id.title_analyze)
         speech_bubble = findViewById(R.id.analyze_speech)
         pot = findViewById(R.id.pot_page3)
-        btnUploadFile = findViewById(R.id.btnUploadFile)
+        btnUploadFile = findViewById(R.id.btnUploadName)
+        loadingIndicator = findViewById(R.id.loadingIndicator) // 분석 중 띄우는 바(띄워져 있는데 안 보이게 해둠)
+        // SharedPreferences에서 사용자 아이디를 가져온다
+        sharedPreferences = getSharedPreferences("Session_ID", Context.MODE_PRIVATE)
+
+        // AnimationDrawable 설정
+        val animationDrawable = getDrawable(R.drawable.animation_loding) as? AnimationDrawable
+        loadingIndicator.indeterminateDrawable = animationDrawable
+
 
         // null 체크 추가
         checkForNulls()
@@ -52,8 +76,14 @@ class Page3Activity : AppCompatActivity() {
 
         // 파일 업로드 버튼 클릭 이벤트 설정
         btnUploadFile.setOnClickListener {
-            handlePeopleCount()
+            showLoadingIndicator() // 분석 중 보이게 바꿈
+            Log.d("fetchChatRooms", "인디케이터 보이게 바꿈")
+
+            // 파일과 인원 수를 서버에 업로드
+            uploadFileAndPeopleCount() // 인원수, 모바일 내의 파일 경로 뷰모델에 저장
+            //파일업로드로 옵저버가 관찰 중인 변수가 변하면 실행됨
         }
+
 
         // TextWatcher 설정(인원수가 수정될 때마다 바로 업데이트)
         etPeopleCount.addTextChangedListener(object : TextWatcher {
@@ -63,6 +93,33 @@ class Page3Activity : AppCompatActivity() {
 
             override fun afterTextChanged(s: Editable?) {
                 handlePeopleCount()
+            }
+        })
+
+        // 파일 업로드 결과를 관찰
+        viewModel.uploadResult.observe(this, Observer { result ->
+            Log.d("fetchChatRooms", "옵저버 안으로 들어옴 현 uploadResult : ${result}")
+            when (result) {
+                is Int -> {
+                    if (result >= 0) {
+                        // 업로드 성공 및 채팅방 번호(crNum) 받음
+                        Log.d("fetchChatRooms", "옵저버 안에서 분석 함수 실행 전  현 uploadResult : ${result}")
+                        analyzeFile(result)
+                        Log.d("fetchChatRooms", "옵저버 안에서 분석 함수 실행 후  현 uploadResult : ${result}")
+
+                        //분석 성공 후 액티비티2로 가기
+                        val intent = Intent(this, Page2Activity::class.java)
+                        startActivity(intent)
+                    } else {
+                        // 업로드 실패로 오류 처리
+                        handleUploadError(result)
+                        hideLoadingIndicator()
+                    }
+                }
+                else -> {
+                    // 기본적으로 인디케이터 숨기기
+                    hideLoadingIndicator()
+                }
             }
         })
 
@@ -92,7 +149,7 @@ class Page3Activity : AppCompatActivity() {
         }
     }
 
-    private fun openFileChooser() {
+    private fun openFileChooser() { //파일 선택 tvSelectedFile 클릭 이벤트
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "*/*"
             addCategory(Intent.CATEGORY_OPENABLE)
@@ -100,23 +157,60 @@ class Page3Activity : AppCompatActivity() {
         startActivityForResult(intent, REQUEST_CODE_SELECT_FILE)
     }
 
+    // "분석 중" 상태를 표시하는 함수
+    private fun showLoadingIndicator() {
+        // 애니메이션 시작
+        (loadingIndicator.indeterminateDrawable as? AnimationDrawable)?.start()
+
+        loadingIndicator.visibility = View.VISIBLE
+    }
+
+    // "분석 중" 상태를 숨기는 함수
+    private fun hideLoadingIndicator() {
+        // 애니메이션 멈춤
+        (loadingIndicator.indeterminateDrawable as? AnimationDrawable)?.stop()
+
+        loadingIndicator.visibility = View.GONE
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE_SELECT_FILE && resultCode == Activity.RESULT_OK) {
-            val fileUri = data?.data
-            tvSelectedFile.text = fileUri?.path ?: "파일 선택 실패"
-
-            // 파일 업로드 완료 후 이전 Activity2로 복귀하는 코드
-            val intent = Intent()
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            selectedFileUri = data?.data
+            tvSelectedFile.text = selectedFileUri?.path ?: "파일 선택 실패"
         }
     }
 
-    private fun analyzeFile() {
-        tvSelectedFile.text = "파일 분석 중..."
-        // 실제 분석 로직을 추가하세요.
-        // 분석이 완료되면 결과를 표시합니다.
-        tvSelectedFile.text = "파일 분석 완료"
+    //업로드 버튼 클릭시 파일과 인원수 뷰모델에 저장 후 서버에 저장
+    private fun uploadFileAndPeopleCount() {
+        val peopleCount = etPeopleCount.text.toString().toIntOrNull() ?: 0
+        val fileUri = tvSelectedFile.text.toString()
+        val userId = sharedPreferences.getString("Session_ID", "") ?: ""
+
+        viewModel.setHeadCountAndFile(peopleCount, fileUri)  // 공유 뷰모델에 저장
+
+        // 서버에 파일 업로드
+        selectedFileUri?.let { uri ->
+            viewModel.uploadFile(uri, userId, peopleCount)
+        } ?: run {
+            tvSelectedFile.text = "파일을 선택해주세요."
+            hideLoadingIndicator() // 파일 선택 오류 시 숨기기
+        }
     }
+    private fun analyzeFile(crNum: Int) {
+        // crNum을 사용하여 분석 작업을 수행합니다.
+        viewModel.requestBasicPythonAnalysis(crNum)
+        hideLoadingIndicator() // 분석 완료 후 인디케이터 숨기기
+    }
+
+    private fun handleUploadError(errorCode: Int) {
+        when (errorCode) {
+            -1 -> Log.e("fetchChatRooms", "업로드 실패")
+            -2 -> Log.e("fetchChatRooms", "네트워크 오류")
+            -3 -> Log.e("fetchChatRooms", "경로 오류")
+            -4 -> Log.e("fetchChatRooms", "분석 실패")
+            else -> Log.e("fetchChatRooms", "알 수 없는 오류")
+        }
+    }
+
 }

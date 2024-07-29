@@ -11,16 +11,25 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.util.Calendar
 
-data class ImageResponse(
-    val imageUrl: Int //서버 만들면 String으로 바꾸고 주소로 받아야함
-)
+
 class fragmentPage9 : Fragment() {
     private var selectedDate1: String? = null // 시작할 날짜 저장
     private var selectedDate2: String? = null // 끝날 날짜 저장
+    lateinit var viewModel: MyViewModel // 공유 뷰모델
+    private val activityAnalysisViewModel: ActivityAnalysisViewModel by viewModels()
+    private var crnum: Int = -1 // arguments로 받을 변수 저장할 변수 초기화
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            crnum = it.getInt("crnum", -1)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,48 +63,39 @@ class fragmentPage9 : Fragment() {
 
         // 검색 버튼 클릭 리스너 설정
         searchbtn.setOnClickListener {
-            // 스피너에 선택되어 있는 항목 저장
             val selectedSearchItem = searchSpinner.selectedItem.toString()
             val selectedResultsItem = resultsSpinner.selectedItem.toString()
 
             // 서버에 이미지 요청하기
-            // Retrofit을 사용한 서버 요청
-            //mainViewModel.fetchImages(selectedSearchItem, selectedResultsItem))
-            // 서버에서 이미지를 url로 받아서 어댑터에 넣기(?)
-//            val imageUrl = "android.resource://${requireContext().packageName}/${R.drawable.test_img_page9}" // 서버 구축 전 테스트 사진
-//            val testImageResponse = ImageResponse(imageUrl)
-//            // RecyclerViewAdapter_page9 초기화
-//            val itemList = listOf(testImageResponse)
-//            val adapter = RecyclerViewAdapter_page9(itemList)
-//            recyclerView.adapter = adapter
+            activityAnalysisViewModel.getActivityAnalysisImage(
+                selectedDate1,
+                selectedDate2,
+                selectedSearchItem,
+                selectedResultsItem,
+                crnum
+            )
 
-            // 일단 테스트용 코드
-            val imageUrl = R.drawable.test_img_page9 // 이미지 리소스 ID
-            val testImageResponse = ImageResponse(imageUrl)
-            val itemList = listOf(testImageResponse)
-            val adapter = RecyclerViewAdapter(itemList)
-            recyclerView.adapter = adapter
-
+            // 이미지 URL을 LiveData로 관찰하여 업데이트
+            activityAnalysisViewModel.imageUrls.observe(viewLifecycleOwner, { imageUrls ->
+                val adapter = Page9RecyclerViewAdapter(imageUrls)
+                recyclerView.adapter = adapter
+            })
         }
 
         // 스피너 아이템 설정
-        // 뷰모델에서 대화 참여자 이름 가져와서 저장하기
-        val searchItems = arrayOf("전체", "1", "2")
-        val searchAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, searchItems)
-        searchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        searchSpinner.adapter = searchAdapter
+        // 대화방 참가자 목록 로드 및 스피너 업데이트
+        activityAnalysisViewModel.loadParticipants(crnum)
+        activityAnalysisViewModel.participants.observe(viewLifecycleOwner, { participants ->
+            // 참가자 목록을 스피너의 아이템으로 설정
+            val participantAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, participants)
+            participantAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            searchSpinner.adapter = participantAdapter
+        })
 
         val resultsItems = arrayOf("보낸 메시지 수 그래프", "활발한 시간대 그래프", "대화를 보내지 않은 날짜")
         val resultsAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, resultsItems)
         resultsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         resultsSpinner.adapter = resultsAdapter
-
-        // 일단 테스트용 코드(버튼 누르기 전까지 보일 이미지)
-        val imageUrl = R.drawable.phone // 이미지 리소스 ID
-        val testImageResponse = ImageResponse(imageUrl)
-        val itemList = listOf(testImageResponse)
-        val adapter = RecyclerViewAdapter(itemList)
-        recyclerView.adapter = adapter
 
         return view
     }

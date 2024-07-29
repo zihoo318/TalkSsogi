@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -26,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("Session_ID", Context.MODE_PRIVATE)
 
         // 사용자 아이디가 이미 저장되어 있으면 Page2Activity로 이동한다
-        val userToken = sharedPreferences.getString("userToken", null)
+        val userToken = sharedPreferences.getString("Session_ID", null)
         if (userToken != null && userToken.isNotEmpty()) {
             val intent = Intent(this, Page2Activity::class.java)
             intent.putExtra("userId", userToken)

@@ -5,27 +5,34 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "chattingroom")
 public class ChattingRoom {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) //기본 키 값을 자동으로 증가
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "cr_num")
     private Integer crNum;
 
+    @Column(name = "file_path")
     private String filePath;
+
+    @Column(name = "headcount")
     private int headcount;
 
-    @ManyToOne //여러 ChattingRoom이 하나의 User와 관계
-    @JoinColumn(name = "user_id") //ChattingRoom 테이블에서 외래 키로 사용될 컬럼의 이름이 user_id
+    @ManyToOne
+    @JoinColumn(name = "user_id") // 외래 키 컬럼 이름과 매핑
     private User user;
 
-    @OneToOne(mappedBy = "chattingRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "chattingRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private AnalysisResult analysisResult;
 
-    public ChattingRoom(String filePath, int headcount) {
-        this.filePath = filePath;
-        this.headcount = headcount;
-        this.analysisResult = null; // AnalysisResult는 optional로 설정
-    }
-
     // Getters and setters
+    public Integer getCrNum() { return crNum;  }
+
+    public void setCrNum(Integer crNum) { this.crNum = crNum;  }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
+
     public String getFilePath() {
         return filePath;
     }
@@ -34,9 +41,7 @@ public class ChattingRoom {
         this.filePath = filePath;
     }
 
-    public int getHeadcount() {
-        return headcount;
-    }
+    public int getHeadcount() { return headcount; }
 
     public void setHeadcount(int headcount) {
         this.headcount = headcount;
@@ -49,4 +54,5 @@ public class ChattingRoom {
     public void setAnalysisResult(AnalysisResult analysisResult) {
         this.analysisResult = analysisResult;
     }
+
 }
