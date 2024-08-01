@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!--<domain includeSubdomains="true">10.0.2.2</domain>  <!- 애뮬레이터로 테스트 할 때-->
+        <domain includeSubdomains="true">172.30.1.58</domain> <!-- 실제 안드로이드로 테스트할 때-->
+    </domain-config>
+</network-security-config>
