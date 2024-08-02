@@ -1,5 +1,8 @@
 package com.talkssogi.TalkSsogi_server.controller;
-
+//가을 추가
+import com.talkssogi.TalkSsogi_server.domain.PredictionResponse;
+import com.talkssogi.TalkSsogi_server.domain.PredictionRequest;
+//가을 추가 끝
 import com.talkssogi.TalkSsogi_server.domain.ChattingRoom;
 import com.talkssogi.TalkSsogi_server.service.ChattingRoomService;
 import com.talkssogi.TalkSsogi_server.service.UserService;
@@ -48,10 +51,10 @@ public class PythonController {
             int headcount = chattingRoom.getHeadcount(); // headcount 가져오기
 
             // 파이썬 인터프리터의 절대 경로 설정
-            String pythonInterpreterPath = "C:/Users/Master/AppData/Local/Programs/Python/Python312/python.exe";  // Python 3.12 인터프리터의 경로
+            String pythonInterpreterPath = "C:/Users/apf_temp_admin/AppData/Local/Microsoft/WindowsApps/python.exe";  // Python 3.12 인터프리터의 경로
 
             // 파이썬 스크립트의 절대 경로 설정
-            String pythonScriptPath = "C:/Users/Master/TalkSsogi_Workspace/basic-python.py";  // 실행할 Python 스크립트의 경로
+            String pythonScriptPath = "C:/Users/apf_temp_admin/TalkSsogi_Workspace/basic-python.py";  // 실행할 Python 스크립트의 경로
 
             // 명령어 설정
             String command = String.format("%s %s %s", pythonInterpreterPath, pythonScriptPath, filePath);
@@ -164,7 +167,7 @@ public class PythonController {
             @RequestParam("crnum") Integer crnum) {
         try {
             // 파이썬 스크립트의 절대 경로 설정
-            String pythonScriptPath = "C:/Talkssogi_Workspace/TalkSsogi/testpy.py";
+            String pythonScriptPath = "C:/Users/apf_temp_admin/TalkSsogi_Workspace/testpy.py";
 
             // 파이썬 스크립트를 실행할 명령어를 설정
             String command = String.format("python %s %s %s %s %s %s",
@@ -200,7 +203,7 @@ public class PythonController {
 
             // 분석 결과 파일 (첫 번째 줄에 이미지 URL 출력)
             String resultFilePath = resultLines[0];
-            String resultUrl = "http://192.168.45.232:8080/" + resultFilePath;
+            String resultUrl = "http://192.168.219.106:8080/" + resultFilePath;
 
             return ResponseEntity.ok(resultUrl);
         } catch (Exception e) {
@@ -208,4 +211,49 @@ public class PythonController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error: " + e.getMessage());
         }
     }
+     //가을 추가
+    @PostMapping("/sender")
+    public ResponseEntity<PredictionResponse> predictSender(@RequestBody PredictionRequest request) {
+        try {
+            String query = request.getQuery();
+
+            // 파이썬 스크립트의 절대 경로 설정
+            String pythonScriptPath = "C:/Users/apf_temp_admin/TalkSsogi_Workspace/script.py"; // 경로 설정
+
+            // 명령어 설정
+            String command = String.format("python %s %s", pythonScriptPath, query);
+            logger.info("Executing Python script with command: " + command);
+
+            // ProcessBuilder를 사용하여 프로세스 생성
+            ProcessBuilder processBuilder = new ProcessBuilder(command.split(" "));
+            processBuilder.redirectErrorStream(true);
+            processBuilder.environment().put("PYTHONIOENCODING", "UTF-8");
+
+            // 프로세스 시작
+            Process process = processBuilder.start();
+
+            // 프로세스의 출력 읽기
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            StringBuilder result = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                result.append(line).append("\n");
+            }
+
+            // 프로세스 종료 대기
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new PredictionResponse("Error executing script"));
+            }
+
+            // 분석 결과 반환
+            String sender = result.toString().trim(); // 결과에서 공백 제거
+            return ResponseEntity.ok(new PredictionResponse(sender));
+
+        } catch (Exception e) {
+            logger.error("Unexpected error: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new PredictionResponse("Unexpected error"));
+        }
+    }
+
 }

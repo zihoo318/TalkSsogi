@@ -17,6 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+//가을 추가
+import java.util.Map;
+import java.util.Optional;
 
 
 @Service
@@ -154,4 +157,15 @@ public class ChattingRoomService {
                 .map(ChattingRoom::getWordCloudImageUrl)
                 .orElse(null);
     }
+
+   //가을 페이지8 추가 코드
+   @Transactional
+   public Map<String, List<String>> getBasicActivityAnalysis(Integer crNum) {
+       // 채팅방 번호로 채팅방 객체를 조회합니다.
+       Optional<ChattingRoom> chattingRoomOpt = chattingRoomRepository.findByCrNum(crNum);
+       // 채팅방이 존재하면 활동 분석 결과를 반환하고, 그렇지 않으면 빈 맵을 반환합니다.
+       return chattingRoomOpt
+               .map(ChattingRoom::getBasicActivityAnalysis)
+               .orElse(Map.of()); // 기본값으로 빈 맵을 반환합니다.
+   }
 }
