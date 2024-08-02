@@ -6,16 +6,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import com.example.talkssogi.ActivityAnalysisViewModel
 import com.example.talkssogi.R
+import androidx.lifecycle.Observer
 
-
-// 검색 결과를 표시하는 프래그먼트
 class fragmentPage10Result : Fragment() {
 
-    // 결과를 표시할 텍스트뷰 선언
     private lateinit var senderResult: TextView
+    private val viewModel: ActivityAnalysisViewModel by viewModels()
 
-    // 프래그먼트 레이아웃을 인플레이트
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -23,15 +23,19 @@ class fragmentPage10Result : Fragment() {
         return inflater.inflate(R.layout.fragment_page10_result, container, false)
     }
 
-    // 뷰가 생성된 후 호출됨
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // 텍스트뷰를 레이아웃에서 찾아서 초기화
         senderResult = view.findViewById(R.id.SenderResult)
 
-        // 번들로부터 검색 쿼리를 받아와서 텍스트뷰에 표시
-        val query = arguments?.getString("query")
-        senderResult.text = "Search result for \"$query\""
+        // ViewModel의 LiveData를 관찰하여 결과를 업데이트합니다
+        viewModel.predictionResult.observe(viewLifecycleOwner, Observer { result ->
+            senderResult.text = "Predicted sender: \"$result\""
+        })
+
+        // 여기에서 ViewModel의 predictSender 메서드를 호출하여 예측을 요청할 수 있습니다
+        // 예를 들어, 초기화나 특정 이벤트에서 호출할 수 있습니다.
+        val query = "some query" // 실제 쿼리로 변경해야 합니다
+        viewModel.predictSender(query)
     }
+
 }

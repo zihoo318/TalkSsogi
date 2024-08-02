@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import com.example.app.fragmentPage10Result
-import fragmentPage10
+import com.example.app.fragmentPage10
+
 
 class fragmentPage5 : Fragment() {
     private var crnum: Int = -1 // 채팅방 번호를 저장할 변수

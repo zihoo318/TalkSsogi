@@ -14,7 +14,12 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+//가을 코드 추가 10 페이지
+data class PredictionRequest(val query: String)
+data class PredictionResponse(val sender: String)
+
 interface ApiService {
+
 
     @GET("/api/userIds") //페이지1에서 쓸 유저 아이디 목록
     fun getAllUserIds(): Call<UserIdResponse> // 업로드 성공 여부를 확인하기 위한 응답
@@ -93,5 +98,10 @@ interface ApiService {
 
     @DELETE("/api/chatrooms/{crnum}")
     fun deleteChatRoom(@Path("crnum") crnum: Int): Call<Void>
+
+    //가을 페이지10 추가
+    //클라이언트가 예측 요청을 보내는 엔드포인트입니다. 이 요청을 통해 검색 쿼리나 분석 데이터를 서버에 전송합니다.
+    @POST("/api/predict")
+    fun predictSender(@Body request: PredictionRequest): Call<PredictionResponse>
 
 }

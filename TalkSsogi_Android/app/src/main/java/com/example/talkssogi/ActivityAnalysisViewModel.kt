@@ -53,6 +53,13 @@ class ActivityAnalysisViewModel : ViewModel() {
     private val _wordCloudImageUrl = MutableLiveData<List<ImageURL>>(emptyList()) // 빈 리스트로 초기화
     val wordCloudImageUrl: LiveData<List<ImageURL>> get() = _wordCloudImageUrl
 
+    //페이지 10 가을 추가
+    private val _prediction = MutableLiveData<String>()
+    val prediction: LiveData<String> get() = _prediction
+    //이것도..
+    val predictionResult = MutableLiveData<String>()
+    val errorMessage = MutableLiveData<String>()
+
 
     //페이지9에서 쓸 검색 정보 보내고 이미지 주소 받기
     fun getActivityAnalysisImage(
@@ -154,5 +161,24 @@ class ActivityAnalysisViewModel : ViewModel() {
                 _wordCloudImageUrl.postValue(emptyList()) // 네트워크 오류 시 빈 리스트로 설정
             }
         }
+    }
+
+
+    //가을 10 페이지 추가
+    fun predictSender(query: String) {
+        val request = PredictionRequest(query)
+        apiService.predictSender(request).enqueue(object : Callback<PredictionResponse> {
+            override fun onResponse(call: Call<PredictionResponse>, response: Response<PredictionResponse>) {
+                if (response.isSuccessful) {
+                    predictionResult.value = response.body()?.sender
+                } else {
+                    errorMessage.value = "Prediction failed"
+                }
+            }
+
+            override fun onFailure(call: Call<PredictionResponse>, t: Throwable) {
+                errorMessage.value = "Network error: ${t.message}"
+            }
+        })
     }
 }
