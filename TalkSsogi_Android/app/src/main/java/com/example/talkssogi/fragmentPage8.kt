@@ -1,6 +1,7 @@
 package com.example.talkssogi
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -46,30 +47,33 @@ class fragmentPage8 : Fragment() {
             (requireActivity() as FragmentActivity).replaceFragment(fragmentPage9())
         }
 
-        // API 호출 및 결과 가공 후 TextView에 출력
-        lifecycleScope.launch {
-            try {
-                // API 호출
-                val results = viewModel.fetchActivityAnalysis(crnum)
-
-                // 결과 가공
-                val displayText = buildString {
-                    results.forEach { (key, value) ->
-                        append("$key:\n")
-                        value.forEach { item ->
-                            append("- $item\n")
-                        }
-                        append("\n")
+        // ViewModel의 LiveData를 관찰하여 데이터 업데이트
+        viewModel.activityAnalysis.observe(viewLifecycleOwner) { results ->
+            // 결과 가공
+            val displayText = buildString {
+                results?.forEach { (key, value) ->
+                    append("$key:\n")
+                    value.forEach { item ->
+                        append("- $item\n")
                     }
+                    append("\n")
                 }
+            }
 
-                // 결과 출력
-                textView.text = displayText
+            // 결과 출력
+            textView.text = displayText
+        }
 
-            } catch (e: Exception) {
-                textView.text = "데이터를 가져오는 데 실패했습니다."
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            if (errorMessage != null) {
+                textView.text = errorMessage
+                Log.e("fragmentPage8", "Error: $errorMessage")  // 에러 메시지 로그
             }
         }
+
+
+        // API 호출
+        viewModel.fetchActivityAnalysis(crnum)
 
         return view
     }

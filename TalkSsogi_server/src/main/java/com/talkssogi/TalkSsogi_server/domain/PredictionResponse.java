@@ -1,9 +1,10 @@
+// domain/PredictionResponse.java
 package com.talkssogi.TalkSsogi_server.domain;
 
-public class PredictionResponse {
+public class PredictResponse {
     private String sender;
 
-    public PredictionResponse(String sender) {
+    public PredictResponse(String sender) {
         this.sender = sender;
     }
 

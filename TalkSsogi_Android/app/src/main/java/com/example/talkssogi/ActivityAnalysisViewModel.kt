@@ -53,6 +53,15 @@ class ActivityAnalysisViewModel : ViewModel() {
     private val _wordCloudImageUrl = MutableLiveData<List<ImageURL>>(emptyList()) // 빈 리스트로 초기화
     val wordCloudImageUrl: LiveData<List<ImageURL>> get() = _wordCloudImageUrl
 
+    //페이지8 변수 초기화(가을 추가)
+    private val _activityAnalysis = MutableLiveData<Map<String, List<String>>?>()
+    val activityAnalysis: MutableLiveData<Map<String, List<String>>?> get() = _activityAnalysis
+
+    private val _error = MutableLiveData<String?>()
+    val error: LiveData<String?> get() = _error
+
+    //
+
     //페이지 10 가을 추가
     private val _prediction = MutableLiveData<String>()
     val prediction: LiveData<String> get() = _prediction
@@ -126,24 +135,32 @@ class ActivityAnalysisViewModel : ViewModel() {
     }
 
 }*/
+    //페이지8 동작
     // crnum을 매개변수로 받아서 API 호출
-    suspend fun fetchActivityAnalysis(crnum: Int): Map<String, List<String>> {
-        return withContext(Dispatchers.IO) {
+    fun fetchActivityAnalysis(crnum: Int) {
+        viewModelScope.launch {
             try {
                 val response = apiService.getActivityAnalysis(crnum)
                 if (response.isSuccessful) {
-                    response.body() ?: emptyMap()
+                    val basicResults: Map<String, List<String>>? = response.body()
+                    Log.d("ActivityAnalysisViewModel", "Results: $basicResults")  // 응답 결과 로그
+                    _activityAnalysis.value = basicResults
                 } else {
-                    Log.e("ActivityAnalysisViewModel", "Error: ${response.code()}")
-                    emptyMap()
+                    Log.e("ActivityAnalysisViewModel", "Server Error: ${response.code()}")  // 서버 오류 로그
+                    _error.value = "서버 오류: ${response.code()}"
                 }
             } catch (e: Exception) {
-                Log.e("ActivityAnalysisViewModel", "Exception: ${e.message}", e)
-                emptyMap()
+                Log.e("ActivityAnalysisViewModel", "Exception: ${e.message}", e)  // 예외 로그
+                _error.value = "데이터를 가져오는 중 문제가 발생했습니다. 나중에 다시 시도해 주세요."
             }
-
         }
     }
+
+
+
+
+
+
 
     // 워드 클라우드 이미지 URL 가져오기
     fun loadWordCloudImageUrl(crnum: Int, userId: Int) {
@@ -181,4 +198,4 @@ class ActivityAnalysisViewModel : ViewModel() {
             }
         })
     }
-}
+    }

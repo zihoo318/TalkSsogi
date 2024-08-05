@@ -14,6 +14,7 @@ import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+
 //가을 코드 추가 10 페이지
 data class PredictionRequest(val query: String)
 data class PredictionResponse(val sender: String)
@@ -44,8 +45,9 @@ interface ApiService {
 
     @Multipart
     @POST("/api/updatefile/{crnum}")
-    fun updateFile(@Path("crnum") crnum: Int,
-                   @Part file: MultipartBody.Part
+    fun updateFile(
+        @Path("crnum") crnum: Int,
+        @Part file: MultipartBody.Part
     ): Call<Map<String, Any>>
 
     @GET("/api/analysis/basic-python") // 기본 분석 요청(uploadFile을 실행하고 같은 메서드에서 같이 요청 실행)
@@ -81,6 +83,7 @@ interface ApiService {
         @Path("userId") userId: Int
     ): Call<List<ImageURL>>
 
+
     @POST("/api/analysis/personalActivityAnalysisImage")
     fun getActivityAnalysisImage(
         @Query("startDate") startDate: String,
@@ -101,7 +104,21 @@ interface ApiService {
 
     //가을 페이지10 추가
     //클라이언트가 예측 요청을 보내는 엔드포인트입니다. 이 요청을 통해 검색 쿼리나 분석 데이터를 서버에 전송합니다.
+
     @POST("/api/predict")
     fun predictSender(@Body request: PredictionRequest): Call<PredictionResponse>
 
+    //s3이미지
+    @GET("/api/image")
+    fun getImageUrls(): Call<List<String>>
+
+
+    //가을 코드 추가 S3
+    @GET("/generateImage")
+    fun generateImage(
+        @Query("userId") userId: String,
+        @Query("textData") textData: String
+    ): Call<String>
 }
+
+
