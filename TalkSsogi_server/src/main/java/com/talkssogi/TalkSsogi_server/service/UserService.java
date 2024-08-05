@@ -32,7 +32,7 @@ public class UserService {
     // 사용자 ID 존재 여부 확인(페이지7에서 사용)
     @Transactional
     public boolean userIdExists(String userId) {
-        return getAllUserIds().contains(userId);
+        return userRepository.existsByUserId(userId);
     }
 
     @Transactional
@@ -64,5 +64,10 @@ public class UserService {
         Set<ChattingRoom> chatRooms = user.getChatList();
         int count = chatRooms.size();
         return count + 1;
+    }
+
+    public void registerUser(String userId) {
+        User user = new User(userId);
+        userRepository.save(user);
     }
 }

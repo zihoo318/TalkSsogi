@@ -1,6 +1,8 @@
 package com.talkssogi.TalkSsogi_server.controller;
 
 import com.talkssogi.TalkSsogi_server.domain.ChattingRoom;
+import com.talkssogi.TalkSsogi_server.controller.LoginRequest;
+import com.talkssogi.TalkSsogi_server.controller.RegisterRequest;
 import com.talkssogi.TalkSsogi_server.domain.User;
 import com.talkssogi.TalkSsogi_server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +23,6 @@ public class Page1Controller {
         this.userService = userService;
     }
 
-    @GetMapping("/userIds")
-    public ResponseEntity<List<String>> getAllUserIds() {
-        List<String> userIds = userService.getAllUserIds();
-        return new ResponseEntity<>(userIds, HttpStatus.OK);
-    }
-
     @PostMapping("/userId")
     public ResponseEntity<String> createUser(@RequestBody User user) {
         String userId = user.getUserId();
@@ -39,43 +35,32 @@ public class Page1Controller {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, Object>> login(@RequestParam String userId) {
-        Map<String, Object> response = new HashMap<>();
-        if (userService.userIdExistsForPage1(userId)) {
-            User user = userService.findUserById(userId);
-            Set<ChattingRoom> chatRooms = userService.getChattingRoomsByUserId(userId);
-            response.put("user", user);
-            response.put("chatRooms", chatRooms);
-            return ResponseEntity.ok(response);
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest) {
+        String userId = loginRequest.getUserId();
+        if (userService.userIdExists(userId)) {
+            return ResponseEntity.ok("Success");
         } else {
-            response.put("error", "User not found");
-            return ResponseEntity.status(404).body(response);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid ID");
         }
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> register(@RequestParam String userId) {
-        Map<String, Object> response = new HashMap<>();
-        if (!userService.userIdExistsForPage1(userId)) {
-            User newUser = new User();
-            newUser.setUserId(userId);
-            userService.addUser(newUser);
-            response.put("user", newUser);
-            response.put("chatRooms", new HashSet<>());
-            return ResponseEntity.ok(response);
+    public ResponseEntity<String> register(@RequestBody RegisterRequest registerRequest) {
+        String userId = registerRequest.getUserId();
+        if (userService.userIdExists(userId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already taken");
         } else {
-            response.put("error", "User ID already exists");
-            return ResponseEntity.status(409).body(response);
+            userService.registerUser(userId);
+            return ResponseEntity.ok("Registration successful");
         }
     }
 
     @GetMapping("/checkUserId")
     public ResponseEntity<String> checkUserId(@RequestParam String userId) {
         if (userService.userIdExistsForPage1(userId)) {
-            return ResponseEntity.ok("사용 중인 아이디입니다");
+            return ResponseEntity.ok("Username is already in use");
         } else {
-            return ResponseEntity.ok("사용 가능한 아이디입니다");
+            return ResponseEntity.ok("Username is available");
         }
     }
-
 }

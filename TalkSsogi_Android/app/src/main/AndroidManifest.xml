@@ -35,6 +35,10 @@
             android:exported="true">
         </activity>
         <activity
+            android:name=".Page1_2Activity"
+            android:exported="true">
+        </activity>
+        <activity
             android:name=".Page2Activity"
             android:exported="true">
         </activity>

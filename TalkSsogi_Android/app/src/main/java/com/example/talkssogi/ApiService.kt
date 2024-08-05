@@ -94,22 +94,22 @@ interface ApiService {
     @DELETE("/api/chatrooms/{crnum}")
     fun deleteChatRoom(@Path("crnum") crnum: Int): Call<Void>
 
-    // 로그인 API
+    // 로그인 API 호출
     @POST("/api/login")
-    fun loginUser(
-        @Query("userId") userId: String
-    ): Call<Map<String, Any>>
+    fun login(
+        @Body loginRequest: LoginRequest
+    ): Call<ResponseBody>
 
-    // 회원가입 API
+    // 회원가입 API 호출
     @POST("/api/register")
-    fun registerUser(
-        @Query("userId") userId: String
-    ): Call<Map<String, Any>>
+    fun register(
+        @Body registerRequest: RegisterRequest
+    ): Call<ResponseBody>
 
-    // 사용자 ID 중복 확인 API
+    // 사용자 ID 유효성 확인 API 호출
     @GET("/api/checkUserId")
     fun checkUserId(
         @Query("userId") userId: String
-    ): Call<String>
+    ): Call<ResponseBody>
 
 }

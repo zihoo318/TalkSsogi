@@ -1,7 +1,6 @@
 package com.talkssogi.TalkSsogi_server.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.talkssogi.TalkSsogi_server.domain.ChattingRoom;
 import com.talkssogi.TalkSsogi_server.processor.PythonResultProcessor;

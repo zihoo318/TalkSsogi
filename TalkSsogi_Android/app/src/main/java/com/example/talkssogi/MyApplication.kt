@@ -3,11 +3,13 @@ package com.example.talkssogi
 import com.example.talkssogi.model.ChatRoom
 import android.app.Application
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -41,6 +43,8 @@ class MyApplication : Application() {
 data class UserIdResponse(val userIds: List<String>) // 전체 유저 아이디들 페이지1
 data class User(val userId: String) //유저 아이디 db저장을 위한 클래스 페이지1
 data class ImageURL(val imageUrl: String) // 서버에서 반환하는 이미지 URL 담아 옴 페이지9
+data class LoginRequest(val userId: String)
+data class RegisterRequest(val userId: String)
 
 class MyViewModel(application: Application) : AndroidViewModel(application) {
     // private val BASE_URL = "http://10.0.2.2:8080/" // 실제 API 호스트 URL로 대체해야 됨 //에뮬레이터에서 호스트 컴퓨터의 localhost를 가리킴
@@ -59,7 +63,23 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
             .build()
         chain.proceed(newRequest)
     }
-    val client = OkHttpClient.Builder()
+
+    private val client = OkHttpClient.Builder()
+        .addInterceptor(logging)
+        .addInterceptor(HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) })
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .build()
+
+    private val apiService = Retrofit.Builder()
+        .baseUrl(Constants.BASE_URL)
+        .client(client)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(ApiService::class.java)
+
+    /*val client = OkHttpClient.Builder()
         .addInterceptor(logging)
         .addInterceptor(acceptHeaderInterceptor) // Accept 헤더 인터셉터
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -73,8 +93,7 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
         .client(client) // OkHttpClient를 Retrofit에 설정 (원인 분석을 위한 로그를 보기위한 설정)
         .addConverterFactory(GsonConverterFactory.create(gson)) // JSON 변환
         .build()
-        .create(ApiService::class.java)
-
+        .create(ApiService::class.java)*/
 
     private val _userIds = MutableLiveData<List<String>>() // 전체 유저 아이디 목록
     val userIds: LiveData<List<String>>
@@ -133,55 +152,25 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                     userIdResponse?.let { _userIds.value = it.userIds }
                 } else {
                     // 오류 처리
+                    Log.e("fetchUserIds", "Error: ${response.code()} - ${response.message()}")
                 }
             }
 
             override fun onFailure(call: Call<UserIdResponse>, t: Throwable) {
                 // 네트워크 오류 처리
+                Log.e("fetchUserIds", "Network error: ${t.message}")
             }
         })
     }
-
-    /*fun checkUserId(userId: String): LiveData<String> {
-        val result = MutableLiveData<String>()
-        apiService.checkUserId(userId).enqueue(object : Callback<String> {
-            override fun onResponse(call: Call<String>, response: Response<String>) {
-                result.value = if (response.isSuccessful) {
-                    response.body() ?: "아이디 중복 확인 실패"
-                } else {
-                    "아이디 중복 확인 실패"
-                }
-            }
-
-            override fun onFailure(call: Call<String>, t: Throwable) {
-                result.value = "아이디 중복 확인 실패"
-            }
-        })
-        return result
-    }
-
-    fun registerUser(userId: String): LiveData<Response<Map<String, Any>>> {
-        val result = MutableLiveData<Response<Map<String, Any>>>()
-        apiService.registerUser(userId).enqueue(object : Callback<Map<String, Any>> {
-            override fun onResponse(call: Call<Map<String, Any>>, response: Response<Map<String, Any>>) {
-                result.value = response
-            }
-
-            override fun onFailure(call: Call<Map<String, Any>>, t: Throwable) {
-                // 예외 발생 시, 적절한 오류 처리를 수행
-                result.value = Response.error(500, ResponseBody.create(null, t.message ?: "Unknown error"))
-            }
-        })
-        return result
-    }*/
-
 
     fun getUserIdsLiveData(): LiveData<List<String>> { // 전체 유저 아이디 목록 getter
         return _userIds
     }
 
     fun addUserId(newID: String) {
-        val currentList = _userIds.value?.toMutableList() ?: mutableListOf()
+        // 예시로 로컬 LiveData에 추가하는 코드
+        // 실제로는 서버나 데이터베이스에 추가해야 함
+        val currentList = userIds.value?.toMutableList() ?: mutableListOf()
         currentList.add(newID)
         _userIds.value = currentList
     }
@@ -469,5 +458,80 @@ class MyViewModel(application: Application) : AndroidViewModel(application) {
                 callback(-2) // 네트워크 오류 코드 전달
             }
         })
+    }
+
+    // SharedPreferences에 사용자 ID를 저장
+    fun saveUserIdToSharedPreferences(userId: String) {
+        val sharedPreferences = getApplication<Application>().getSharedPreferences("Session_ID", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("Session_ID", userId)
+            apply()
+        }
+    }
+
+    // 서버에 사용자 ID 존재 여부를 확인하는 요청 API 호출
+    fun checkUserIdExists(userId: String): LiveData<Boolean> {
+        val result = MutableLiveData<Boolean>()
+        apiService.checkUserId(userId).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()?.string()
+                    result.value = responseBody == "Username is already in use"
+                } else {
+                    Log.e("checkUserIdExists", "Error: ${response.code()} - ${response.message()}")
+                    result.value = false
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("checkUserIdExists", "Network error: ${t.message}")
+                result.value = false
+            }
+        })
+        return result
+    }
+
+    // 서버에 회원가입 요청 (사용자 ID 등록) API 호출
+    fun registerUserId(userId: String, callback: (Boolean) -> Unit) {
+        apiService.register(RegisterRequest(userId)).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    callback(true)
+                } else {
+                    Log.e("registerUserId", "Error: ${response.code()} - ${response.message()}")
+                    callback(false)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("registerUserId", "Network error: ${t.message}")
+                callback(false)
+            }
+        })
+    }
+
+    // 서버에 로그인 요청 API 호출
+    fun loginUserId(userId: String, callback: (Boolean) -> Unit) {
+        apiService.login(LoginRequest(userId)).enqueue(object : Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                if (response.isSuccessful) {
+                    callback(true)
+                } else {
+                    Log.e("loginUserId", "Error: ${response.code()} - ${response.message()}")
+                    callback(false)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Log.e("loginUserId", "Network error: ${t.message}")
+                callback(false)
+            }
+        })
+    }
+
+    // 지정된 페이지로 이동
+    fun navigateToNextPage(activity: AppCompatActivity, nextPage: Class<*>) {
+        val intent = Intent(activity, nextPage)
+        activity.startActivity(intent)
     }
 }
