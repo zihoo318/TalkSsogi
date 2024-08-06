@@ -44,17 +44,21 @@ def main():
             print(f"Error reading file {file_path}: {e}")
             return ""
 
+    def add_sorted_ranking_to_map(ranking, category):
+        sorted_ranking = dict(sorted(ranking.items(), key=lambda item: item[1], reverse=True))
+        ranking_results_map[category] = {user_name: str(count) for user_name, count in sorted_ranking.items()}
+
     # ----------------메시지 수 기준 랭킹 출력----------------
     message_count_ranking = chat_room.rank_users_by_message_count()
-    ranking_results_map['메시지'] = {user_name: str(count) for user_name, count in message_count_ranking}
+    add_sorted_ranking_to_map({user_name: count for user_name, count in message_count_ranking}, '메시지')
 
     # ----------------오타 수 기준 랭킹 출력----------------
     typo_count_ranking = chat_room.rank_users_by_typo_count()
-    ranking_results_map['오타'] = {user_name: str(count) for user_name, count in typo_count_ranking}
+    add_sorted_ranking_to_map({user_name: count for user_name, count in typo_count_ranking}, '오타')
 
     # ----------------초성 사용 횟수 기준 랭킹 출력----------------
     initial_message_count_ranking = chat_room.rank_users_by_initial_message_count()
-    ranking_results_map['초성'] = {user_name: str(count) for user_name, count in initial_message_count_ranking}
+    add_sorted_ranking_to_map({user_name: count for user_name, count in initial_message_count_ranking}, '초성')
 
     # ----------------언급----------------
     def count_mentions(chat_room):
@@ -73,14 +77,11 @@ def main():
                             mention_counts[member] += 1
                             mentioned_counts[mentioned_name] += 1
 
-        mention_counts = dict(sorted(mention_counts.items(), key=lambda item: item[1], reverse=True))
-        mentioned_counts = dict(sorted(mentioned_counts.items(), key=lambda item: item[1], reverse=True))
-
         return mention_counts, mentioned_counts
 
     mention, mentioned = count_mentions(chat_room)
-    ranking_results_map['언급한'] = {user_name: str(count) for user_name, count in mention.items()}
-    ranking_results_map['언급된'] = {user_name: str(count) for user_name, count in mentioned.items()}
+    add_sorted_ranking_to_map(mention, '언급한')
+    add_sorted_ranking_to_map(mentioned, '언급된')
 
     # ----------------사진 보낸 개수----------------
     def count_photos(chat_room):
@@ -99,11 +100,10 @@ def main():
                                 photo_count[member] += int(match)
                             else:
                                 photo_count[member] += 1
-        photo_count = dict(sorted(photo_count.items(), key=lambda item: item[1], reverse=True))
         return photo_count
 
     photo = count_photos(chat_room)
-    ranking_results_map['사진'] = {user_name: str(count) for user_name, count in photo.items()}
+    add_sorted_ranking_to_map(photo, '사진')
 
     # ----------------이모티콘 보낸 개수----------------
     def count_emojis(chat_room):
@@ -122,12 +122,10 @@ def main():
         for name, count in basic_emoji_counts:
             if name in emoji_count:
                 emoji_count[name] += count
-        emoji_count = dict(sorted(emoji_count.items(), key=lambda item: item[1], reverse=True))
         return emoji_count
 
     emoji = count_emojis(chat_room)
-    ranking_results_map['이모티콘'] = {user_name: str(count) for user_name, count in emoji.items()}
-
+    add_sorted_ranking_to_map(emoji, '이모티콘')
 
     # ----------------메시지 삭제 횟수----------------
     def deleted_message_results(chat_room):
@@ -141,11 +139,10 @@ def main():
                     message = message.strip()
                     if '삭제된 메시지입니다.' in message:
                         delete_count[member] += 1
-        delete_count = dict(sorted(delete_count.items(), key=lambda item: item[1], reverse=True))
         return delete_count
 
     deleted_message_results = deleted_message_results(chat_room)
-    ranking_results_map['삭제'] = {user_name: str(count) for user_name, count in deleted_message_results.items()}
+    add_sorted_ranking_to_map(deleted_message_results, '삭제')
 
     # ----------------메시지 평균 길이----------------
     def calculate_average_message_length(chat_room):
@@ -166,17 +163,15 @@ def main():
                 average_length = total_length / num_messages if num_messages > 0 else 0
                 user_average_lengths[user_name] = int(average_length)
 
-        sorted_averages = dict(sorted(user_average_lengths.items(), key=lambda item: item[1], reverse=True))
-        return sorted_averages
+        return user_average_lengths
 
     average_length = calculate_average_message_length(chat_room)
-    ranking_results_map['평균 길이'] = {user_name: str(avg_length) for user_name, avg_length in average_length.items()}
+    add_sorted_ranking_to_map(average_length, '평균 길이')
 
     # basic result 결과를 JSON으로 변환하여 파일로 저장
     basic_output_file = 'C:/Talkssogi_Workspace/TalkSsogi/ranking_results.json'
     with open(basic_output_file, 'w', encoding='utf-8') as f:
         json.dump(ranking_results_map, f, ensure_ascii=False, indent=4)
-
 
     print(f"\nbasic 랭킹 결과가 '{basic_output_file}' 파일로 저장되었습니다.")
 
