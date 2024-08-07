@@ -24,9 +24,9 @@ public class Page7Controller {
     private ChattingRoomService chattingRoomService;
 
     @GetMapping("/basicRankingResults")
-    public Map<String, Map<String, String>> getBasicRankingResults(@RequestParam Integer crnum) {
+    public Map<String, Map<String, Integer>> getBasicRankingResults(@RequestParam Integer crnum) {
         // 서비스에서 기본 제공 랭킹 결과를 가져오는 로직
-        Map<String, Map<String, String>> basicRankingResults = chattingRoomService.getBasicRankingResults(crnum);
+        Map<String, Map<String, Integer>> basicRankingResults = chattingRoomService.getBasicRankingResults(crnum);
 
         // 결과값 로그 출력
         logger.info("Basic Ranking Results for crnum {}: {}", crnum, basicRankingResults);
@@ -35,9 +35,9 @@ public class Page7Controller {
     }
 
     @GetMapping("/searchRankingResults")
-    public Map<String, Map<String, String>> getSearchRankingResults(@RequestParam Integer crnum, @RequestParam String keyword) {
+    public Map<String, Map<String, Integer>> getSearchRankingResults(@RequestParam Integer crnum, @RequestParam String keyword) {
         // 기본 제공 랭킹 결과를 생성
-        Map<String, Map<String, String>> searchRankingResults = chattingRoomService.getSearchRankingResults(crnum, keyword);
+        Map<String, Map<String, Integer>> searchRankingResults = chattingRoomService.getSearchRankingResults(crnum, keyword);
         logger.info("Search Ranking Results for crnum {} and keyword {}: {}", crnum, keyword, searchRankingResults);
         return searchRankingResults;
     }

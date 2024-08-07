@@ -56,7 +56,7 @@ public class ChattingRoomService {
     }
 
     public void saveRankingResults(Integer crNum, String jsonResults) {
-        Map<String, Map<String, String>> rankingResults = pythonResultProcessor.extractRankingResults(jsonResults);
+        Map<String, Map<String, Integer>> rankingResults = pythonResultProcessor.extractRankingResults(jsonResults);
 
         if (rankingResults == null) {
             System.out.println("Error processing ranking results");
@@ -167,7 +167,7 @@ public class ChattingRoomService {
         }
     }
 
-    public Map<String, Map<String, String>> getBasicRankingResults(Integer crNum) {
+    public Map<String, Map<String, Integer>> getBasicRankingResults(Integer crNum) {
         ChattingRoom chattingRoom = chattingRoomRepository.findByCrNum(crNum).orElse(null);
         if (chattingRoom != null) {
             return chattingRoom.getBasicRankingResults();
@@ -175,7 +175,7 @@ public class ChattingRoomService {
         return null;
     }
 
-    public Map<String, Map<String, String>> getSearchRankingResults(int crnum, String keyword) {
+    public Map<String, Map<String, Integer>> getSearchRankingResults(int crnum, String keyword) {
         // 파이썬 스크립트를 실행하여 결과를 가져오는 로직을 추가
         ChattingRoom chattingRoom = chattingRoomRepository.findByCrNum(crnum).orElse(null);
         if (chattingRoom == null) {
@@ -221,7 +221,7 @@ public class ChattingRoomService {
 
             String jsonString = new String(Files.readAllBytes(searchResultsPath));
             ObjectMapper mapper = new ObjectMapper();
-            Map<String, Map<String, String>> rankingResultsMap = mapper.readValue(jsonString, new TypeReference<Map<String, Map<String, String>>>(){});
+            Map<String, Map<String, Integer>> rankingResultsMap = mapper.readValue(jsonString, new TypeReference<Map<String, Map<String, Integer>>>(){});
 
             chattingRoom.setSearchRankingResults(rankingResultsMap);
             this.save(chattingRoom); // chattingRoomService.save(chattingRoom) 대신 this.save(chattingRoom) 사용

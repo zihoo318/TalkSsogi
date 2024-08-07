@@ -122,7 +122,7 @@ public class PythonController {
             String jsonString = readFileToString(jsonFile);  // 파일을 문자열로 읽기
 
             // JSON 문자열을 Map으로 변환
-            Map<String, Map<String, String>> rankingResultsMap = pythonResultProcessor.extractRankingResults(jsonString);
+            Map<String, Map<String, Integer>> rankingResultsMap = pythonResultProcessor.extractRankingResults(jsonString);
 
             // 분석 결과를 ChattingRoom 엔티티에 저장
             chattingRoom.setBasicRankingResults(rankingResultsMap);

@@ -9,15 +9,15 @@ import jakarta.persistence.Converter;
 import java.util.HashMap;
 import java.util.Map;
 
-// Map<String, Map<String, String>> 타입의 데이터를 JSON 문자열로 변환하고,
-// 다시 Map<String, Map<String, String>> 타입으로 변환하는 역할
+// Map<String, Map<String, Integer>> 타입의 데이터를 JSON 문자열로 변환하고,
+// 다시 Map<String, Map<String, Integer>> 타입으로 변환하는 역할
 
 @Converter
-public class StringMapConverter implements AttributeConverter<Map<String, Map<String, String>>, String> {
+public class StringMapConverter implements AttributeConverter<Map<String, Map<String, Integer>>, String> {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public String convertToDatabaseColumn(Map<String, Map<String, String>> attribute) {
+    public String convertToDatabaseColumn(Map<String, Map<String, Integer>> attribute) {
         if (attribute == null || attribute.isEmpty()) {
             return "{}"; // 빈 맵을 저장할 때 빈 JSON 객체
         }
@@ -29,12 +29,12 @@ public class StringMapConverter implements AttributeConverter<Map<String, Map<St
     }
 
     @Override
-    public Map<String, Map<String, String>> convertToEntityAttribute(String dbData) {
+    public Map<String, Map<String, Integer>> convertToEntityAttribute(String dbData) {
         if (dbData == null || dbData.isEmpty()) {
             return new HashMap<>(); // 빈 JSON을 빈 맵으로 변환
         }
         try {
-            return objectMapper.readValue(dbData, new TypeReference<Map<String, Map<String, String>>>() {});
+            return objectMapper.readValue(dbData, new TypeReference<Map<String, Map<String, Integer>>>() {});
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Could not convert JSON string to map.", e);
         }
