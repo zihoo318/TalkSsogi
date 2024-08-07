@@ -22,7 +22,7 @@ object RankingRepository {
         apiService = retrofit.create(ApiService::class.java)
     }
 
-    suspend fun getBasicRankingResults(crnum: Int): Map<String, Map<String, String>> {
+    suspend fun getBasicRankingResults(crnum: Int): Map<String, Map<String, Int>> {
         return withContext(Dispatchers.IO) {
             try {
                 val response = apiService.getBasicRankingResults(crnum).awaitResponse()
@@ -39,12 +39,12 @@ object RankingRepository {
         }
     }
 
-    suspend fun getSearchRankingResults(crnum: Int, keyword: String, callback: (Map<String, Map<String, String>>?) -> Unit) {
+    suspend fun getSearchRankingResults(crnum: Int, keyword: String, callback: (Map<String, Map<String, Int>>?) -> Unit) {
         val call = apiService.getSearchRankingResults(crnum, keyword)
-        call.enqueue(object : Callback<Map<String, Map<String, String>>> {
+        call.enqueue(object : Callback<Map<String, Map<String, Int>>> {
             override fun onResponse(
-                call: Call<Map<String, Map<String, String>>>,
-                response: Response<Map<String, Map<String, String>>>
+                call: Call<Map<String, Map<String, Int>>>,
+                response: Response<Map<String, Map<String, Int>>>
             ) {
                 if (response.isSuccessful) {
                     callback(response.body())
@@ -54,7 +54,7 @@ object RankingRepository {
                 }
             }
 
-            override fun onFailure(call: Call<Map<String, Map<String, String>>>, t: Throwable) {
+            override fun onFailure(call: Call<Map<String, Map<String, Int>>>, t: Throwable) {
                 Log.e("RankingRepository", "Error fetching search ranking results", t)
                 callback(null)
             }

@@ -11,11 +11,11 @@ import retrofit2.Callback
 import retrofit2.Response
 
 class RankingViewModel : ViewModel() {
-    private val _basicRankingResults = MutableLiveData<Map<String, Map<String, String>>>()
-    val basicRankingResults: LiveData<Map<String, Map<String, String>>> get() = _basicRankingResults
+    private val _basicRankingResults = MutableLiveData<Map<String, Map<String, Int>>>()
+    val basicRankingResults: LiveData<Map<String, Map<String, Int>>> get() = _basicRankingResults
 
-    private val _searchRankingResults = MutableLiveData<Map<String, Map<String, String>>?>()
-    val searchRankingResults: LiveData<Map<String, Map<String, String>>?> get() = _searchRankingResults
+    private val _searchRankingResults = MutableLiveData<Map<String, Map<String, Int>>?>()
+    val searchRankingResults: LiveData<Map<String, Map<String, Int>>?> get() = _searchRankingResults
 
     //8페이지 (가을추가)
     private val _activityAnalysis = MutableLiveData<Map<String, List<String>>>()

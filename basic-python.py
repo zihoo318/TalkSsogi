@@ -90,6 +90,7 @@ def main():
         mention_counts = dict(sorted(mention_counts.items(), key=lambda item: item[1], reverse=True))
         mentioned_counts = dict(sorted(mentioned_counts.items(), key=lambda item: item[1], reverse=True))
 
+
         return mention_counts, mentioned_counts
 
     mention, mentioned = count_mentions(chat_room)
@@ -107,21 +108,18 @@ def main():
 
             # 개인 파일을 읽어서 사진 개수 계산
             if personal_file_path:
-                with open(personal_file_path, 'r', encoding='utf-8') as file:
-                    messages = file.read().split('\n')
-                    for message in messages:
-                        message = message.strip()
-                        # '사진' 또는 '사진 X장' 패턴 찾기
-                        matches = re.findall(r'사진\s*(\d*)\s*장?', message)
-                        for match in matches:
-                            # '사진', 숫자, '장' 외 다른 문자가 포함되지 않은 경우
-                            if re.fullmatch(r'사진\s*\d*\s*장?', message):
-                                if match.isdigit():
-                                    photo_count[member] += int(match)
-                                else:
-                                    photo_count[member] += 1
-        # 값에 따라 내림차순으로 정렬하여 리스트로 반환
-        photo_count = dict(sorted(photo_count.items(), key=lambda item: item[1], reverse=True))
+
+                messages = safe_read_file(personal_file_path).split(';')
+                for message in messages:
+                    message = message.strip()
+                    matches = re.findall(r'사진\s*(\d*)\s*장?', message)
+                    for match in matches:
+                        if re.fullmatch(r'사진\s*\d*\s*장?', message):
+                            if match.isdigit():
+                                photo_count[member] += int(match)
+                            else:
+                                photo_count[member] += 1
+
         return photo_count
 
     photo = count_photos(chat_room)
