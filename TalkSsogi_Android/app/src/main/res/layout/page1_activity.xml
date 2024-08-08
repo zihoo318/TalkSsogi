@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="74dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginStart="160dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/happy" />
+
+    <TextView
+        android:id="@+id/ID"
+        android:layout_width="120dp"
+        android:layout_height="42dp"
+        android:text="아이디:"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageView"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="200dp" />
+
+    <EditText
+        android:id="@+id/etID"
+        android:layout_width="240dp"
+        android:layout_height="60dp"
+        android:background="@drawable/border"
+        app:layout_constraintStart_toEndOf="@id/ID"
+        app:layout_constraintTop_toBottomOf="@id/imageView"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="200dp"
+        android:hint="아이디 입력" />
+
+    <TextView
+        android:id="@+id/IDConfirm"
+        android:layout_width="300dp"
+        android:layout_height="42dp"
+        android:text="존재하지 않는 아이디 입니다."
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FF0000"
+        app:layout_constraintStart_toStartOf="@id/etID"
+        app:layout_constraintTop_toBottomOf="@id/etID"
+        android:layout_marginTop="1dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/IDConfirm2"
+        android:layout_width="250dp"
+        android:layout_height="42dp"
+        android:text="존재하는 아이디 입니다."
+        android:textColor="#FF0000"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/IDConfirm"
+        app:layout_constraintTop_toBottomOf="@id/IDConfirm"
+        android:layout_marginTop="2dp"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/btnUploadName"
+        android:layout_width="170dp"
+        android:layout_height="60dp"
+        android:layout_marginBottom="300dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/upload_file"
+        android:padding="16dp"
+        android:src="@drawable/login"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnMoveToSignUpPage"
+        android:layout_width="252dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="105dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/upload_file"
+        android:padding="16dp"
+        android:src="@drawable/movetosignuppage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FragmentActivity"
+    android:background="#ffffff">
+
+    <!-- 기존 옵션들을 포함할 ConstraintLayout -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/undo" />
+
+        <!-- 왼쪽 세로로 나란하게 배치된 2개의 선택지 -->
+        <TextView
+            android:id="@+id/option_1"
+            android:layout_width="170dp"
+            android:layout_height="158dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="35dp"
+            android:background="@drawable/leaf_yellow"
+            android:gravity="start|top"
+            android:paddingStart="50dp"
+            android:paddingTop="63dp"
+            android:text="워드 클라우드\n      생성"
+            app:layout_constraintBottom_toTopOf="@+id/option_2"
+            app:layout_constraintEnd_toStartOf="@+id/option_4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/option_2"
+            android:layout_width="170dp"
+            android:layout_height="158dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="1dp"
+            android:background="@drawable/leaf_green"
+            android:gravity="start|top"
+            android:paddingStart="65dp"
+            android:paddingTop="63dp"
+            android:text="랭킹"
+            app:layout_constraintBottom_toTopOf="@+id/imgResult"
+            app:layout_constraintEnd_toStartOf="@+id/option_4"
+            app:layout_constraintHorizontal_bias="0.494"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/option_1" />
+
+        <!-- 오른쪽 세로로 엇갈리게 배치된 2개의 선택지 -->
+        <TextView
+            android:id="@+id/option_4"
+            android:layout_width="170dp"
+            android:layout_height="158dp"
+            android:layout_marginTop="120dp"
+            android:background="@drawable/leaf_neon"
+            android:gravity="center"
+            android:text="활동 분석"
+            app:layout_constraintBottom_toTopOf="@+id/option_3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/option_1"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/option_3"
+            android:layout_width="170dp"
+            android:layout_height="158dp"
+            android:layout_marginBottom="1dp"
+            android:background="@drawable/leaf_blue"
+            android:gravity="start|top"
+            android:paddingStart="56dp"
+            android:paddingTop="63dp"
+            android:text="발신자 예측\n   (RNN)"
+            app:layout_constraintBottom_toTopOf="@+id/imgResult"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/option_2"
+            app:layout_constraintTop_toBottomOf="@+id/option_4" />
+
+        <!-- 하단에 화분이 + 말풍선 -->
+        <ImageView
+            android:id="@+id/imgResult"
+            android:layout_width="0dp"
+            android:layout_height="118dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:srcCompat="@drawable/talk_select" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 프래그먼트를 위한 컨테이너 -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</FrameLayout>

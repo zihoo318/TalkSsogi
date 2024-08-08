@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">TalkSsogi</string>
+    <string name="title_ranking">랭킹 분석</string>
+    <string name="ranking_1page">가장 많이 메시지를 보낸 사람</string>
+    <string name="upload_file">파일 업로드</string> <!--page1_layout-->
+</resources>

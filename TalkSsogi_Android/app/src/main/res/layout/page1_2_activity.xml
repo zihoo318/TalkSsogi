@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <!-- 상단 이미지뷰 및 텍스트뷰 -->
+    <ImageView
+        android:id="@+id/undo_button"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/happy" />
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="44dp"
+        android:text="회원가입"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@+id/undo_button"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/ID"
+        android:layout_width="120dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="320dp"
+        android:text="아이디:"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <EditText
+        android:id="@+id/etID"
+        android:layout_width="240dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="320dp"
+        android:background="@drawable/border"
+        android:hint="아이디 입력"
+        app:layout_constraintStart_toEndOf="@id/ID"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/IDConfirm"
+        android:layout_width="250dp"
+        android:layout_height="42dp"
+        android:text="사용 가능한 아이디 입니다."
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="#FF0000"
+        app:layout_constraintStart_toStartOf="@id/etID"
+        app:layout_constraintTop_toBottomOf="@id/etID"
+        android:layout_marginTop="1dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/IDConfirm2"
+        android:layout_width="250dp"
+        android:layout_height="42dp"
+        android:text="사용중인 아이디 입니다."
+        android:textColor="#FF0000"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/IDConfirm"
+        app:layout_constraintTop_toBottomOf="@id/IDConfirm"
+        android:layout_marginTop="2dp"
+        android:visibility="gone" />
+
+    <ImageButton
+        android:id="@+id/btnCheckRedundancy"
+        android:layout_width="180dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="316dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/upload_file"
+        android:padding="16dp"
+        android:src="@drawable/checkredundancy"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.969"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnSignUp"
+        android:layout_width="252dp"
+        android:layout_height="70dp"
+        android:layout_marginBottom="224dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/upload_file"
+        android:padding="16dp"
+        android:src="@drawable/signup"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
